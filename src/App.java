@@ -1,7 +1,3 @@
-/**
- * Sample Project for SWEN20003: Object Oriented Software Development, 2019, Semester 1
- * by Eleanor McMurtry, University of Melbourne
- */
 
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
