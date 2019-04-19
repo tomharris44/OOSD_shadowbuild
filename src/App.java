@@ -6,12 +6,6 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.Input;
 
-/**
- * Main class for the game.
- * Handles initialisation, input and rendering.
- * 
- * You are unlikely to need to change this class, but you can if you so choose.
- */
 public class App extends BasicGame {
     /** window width, in pixels */
     public static final int WINDOW_WIDTH = 1024;
