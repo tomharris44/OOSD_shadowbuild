@@ -1,4 +1,6 @@
 
+import java.io.IOException;
+
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.GameContainer;
@@ -13,6 +15,7 @@ public class App extends BasicGame {
     public static final int WINDOW_HEIGHT = 768;
 
     private World world;
+    
 
     public App() {
         super("Shadow Build");
@@ -21,7 +24,12 @@ public class App extends BasicGame {
     @Override
     public void init(GameContainer gc)
             throws SlickException {
-        world = new World();
+    	// not sure about try statement
+        try {
+			world = new World();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
     }
 
     /** Update the game state for a frame.
