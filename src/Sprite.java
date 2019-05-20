@@ -2,7 +2,7 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 
-public abstract class Sprite {
+public abstract class Sprite implements Comparable<Sprite> {
 	
 	private String FILE_PATH;
 	
@@ -78,4 +78,16 @@ public abstract class Sprite {
 		this.actions = actions;
 	}
 	
+	
+	public int compareTo(Sprite s) {
+		if (this.getClass().equals(s.getClass())) {
+			return 0;
+		} else if (this instanceof Unit) {
+			return 1;
+		} else if (this instanceof Building && s instanceof Resource) {
+			return 1;
+		} else {
+			return -1;
+		}
+	}
 }

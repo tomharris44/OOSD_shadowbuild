@@ -3,7 +3,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
@@ -14,18 +13,23 @@ public class World {
 	private static final String SOLID_PROPERTY = "solid";
 	private static final String INITIAL_OBJECTS_PATH = "assets/objects.csv";
 	
+	// mapping of csv file sprite strings to static variables
 	private static final String COMMAND_CENTRE = "command_centre";
 	private static final String METAL_MINE = "metal_mine";
 	private static final String UNOBTAINIUM_MINE = "unobtainium_mine";
 	private static final String PYLON = "pylon";
 	private static final String ENGINEER = "engineer";
-	// add others in?
+	private static final String BUILDER = "builder";
+	private static final String SCOUT = "scout";
+	private static final String TRUCK = "truck";
+	private static final String FACTORY = "factory";
 	
+	// Sprite ArrayLists for current spritelist and new/dead sprites
 	private ArrayList<Sprite> sprites = new ArrayList<Sprite>();
 	private ArrayList<Sprite> newSprites = new ArrayList<Sprite>();
 	private ArrayList<Sprite> deadSprites = new ArrayList<Sprite>();
-	private ArrayList<Sprite> orderedSprites = new ArrayList<Sprite>();
 	
+	// 
 	private TiledMap map;
 	private Camera camera = new Camera();
 	
@@ -36,7 +40,7 @@ public class World {
 	private double selectX = -1;
 	private double selectY = -1;
 	
-	private int metal = 0;
+	private int metal = 1000;
 	private int unobtanium = 0;
 	
 	private int engineerCarryCap = 2;
@@ -113,16 +117,15 @@ public class World {
 	
 	public World() throws SlickException, IOException {
 		map = new TiledMap(MAP_PATH);
-//		sprites.add(new Scout(812,684,this.camera));
-//		sprites.add(new Builder(812,784,this.camera));
-//		sprites.add(new Metal(812,884,this.camera));
-//		sprites.add(new CommandCentre(712,784,this.camera));
 		this.readSprites();
+		Collections.sort(sprites);
 	}
 	
 	public void update(Input input, int delta) throws SlickException {
 		lastInput = input;
 		lastDelta = delta;
+		
+		//reverse list for updating - gives preference to units with selection
 		Collections.reverse(sprites);
 		
 		if (input.isMousePressed(Input.MOUSE_LEFT_BUTTON)) {
@@ -148,7 +151,10 @@ public class World {
 			}
 			newSprites.clear();
 		}
-		orderSprites();
+		
+		//sort list for rendering - renders units over the top of buildings and resources
+		Collections.reverse(sprites);
+		Collections.sort(sprites);
 		
 		if (selectX != -1) {
 			selectX = -1;
@@ -170,7 +176,6 @@ public class World {
 		}
 	}
 	
-	// This should probably be in a separate static utilities class, but it's a bit excessive for one method.
 	public static double distance(double x1, double y1, double x2, double y2) {
 		return (double)Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 	}
@@ -202,27 +207,7 @@ public class World {
 	public ArrayList<Sprite> getSprites() {
 		return sprites;
 	}
-	
-	public void orderSprites() {
-		// TODO: figure out better way to do this and solve overlapping units bug
-		for (Sprite s: sprites) {
-			if (s instanceof Resource) {
-				orderedSprites.add(s);
-			}
-		}
-		for (Sprite s: sprites) {
-			if (s instanceof Building) {
-				orderedSprites.add(s);
-			}
-		}
-		for (Sprite s: sprites) {
-			if (s instanceof Unit) {
-				orderedSprites.add(s);
-			}
-		}
-		Collections.copy(sprites, orderedSprites);
-		orderedSprites.clear();
-	}
+
 	public int getEngineerCarryCap() {
 		return engineerCarryCap;
 	}

@@ -3,11 +3,10 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 
 public class Factory extends Building {
-	
-	//TODO: implement metal cost for truck production
 
 	private static final String FACTORY_PATH = "assets/buildings/factory.png";
 	private static final String FACTORY_ACTIONS = "1- Create Truck";
+	private static final int TRUCK_COST = 100;
 	
 	private static final int TRAINING_TIME = 5000;
 	private boolean isTraining = false;
@@ -33,17 +32,18 @@ public class Factory extends Building {
 			super.setSelected(true);
 		}
 		
-		if (!isTraining) {
-			if (super.isSelected() && input.isKeyPressed(Input.KEY_1)) {
-				isTraining = true;
-			}
-		} else {
+		if (isTraining) {
 			currentTrainingTime = currentTrainingTime + world.getDelta();
 			if (currentTrainingTime > TRAINING_TIME) {
 				world.generateSprite(new Truck(this.getX(),this.getY(),this.getCamera()));
 				isTraining = false;
 				currentTrainingTime = 0;
 			}
+		}
+		
+		if (super.isSelected() && input.isKeyPressed(Input.KEY_1) && world.getMetal() >= TRUCK_COST) {
+			isTraining = true;
+			world.setMetal(world.getMetal() - TRUCK_COST);
 		}
 		
 		
