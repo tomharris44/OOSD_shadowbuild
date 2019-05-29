@@ -7,6 +7,7 @@ public abstract class Building extends Sprite {
 	private Image highlightImage;
 	
 	private boolean isSelected;
+	
 
 	public Building(double initialX, double initialY, Camera camera) throws SlickException {
 		super(initialX, initialY, camera);

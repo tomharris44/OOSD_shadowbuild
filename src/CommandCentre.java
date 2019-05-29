@@ -25,15 +25,16 @@ public class CommandCentre extends Building {
 	}
 	
 	public boolean checkInput(Input input, World world) throws SlickException {
-		if (input.isKeyPressed(Input.KEY_1) && world.getMetal() >= SCOUT_COST) {
+		// check isTraining again to make sure unit creation doesn't queue
+		if (input.isKeyPressed(Input.KEY_1) && world.getMetal() >= SCOUT_COST && !isTraining) {
 			newUnit = new Scout(this.getX(),this.getY(),this.getCamera());
 			world.setMetal(world.getMetal() - SCOUT_COST);
 			return true;
-		} else if (input.isKeyPressed(Input.KEY_2) && world.getMetal() >= BUILDER_COST) {
+		} else if (input.isKeyPressed(Input.KEY_2) && world.getMetal() >= BUILDER_COST && !isTraining) {
 			newUnit = new Builder(this.getX(),this.getY(),this.getCamera());
 			world.setMetal(world.getMetal() - BUILDER_COST);
 			return true;
-		} else if (input.isKeyPressed(Input.KEY_3) && world.getMetal() >= ENGINEER_COST) {
+		} else if (input.isKeyPressed(Input.KEY_3) && world.getMetal() >= ENGINEER_COST && !isTraining) {
 			newUnit = new Engineer(this.getX(),this.getY(),this.getCamera());
 			world.setMetal(world.getMetal() - ENGINEER_COST);
 			return true;
@@ -65,6 +66,8 @@ public class CommandCentre extends Building {
 				isTraining = false;
 				currentTrainingTime = 0;
 			}
+			//  
+			checkInput(input,world);
 		}
 		
 		

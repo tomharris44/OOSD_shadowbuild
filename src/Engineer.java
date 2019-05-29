@@ -11,8 +11,10 @@ public class Engineer extends Unit {
 	private boolean isMining = false;
 	private int currentMiningTime = 0;
 	
-	private Resource resource;
+	private Resource holdingResource;
+	private Resource returnResource;
 	private int currentAmount;
+	
 
 	public Engineer(double initialX, double initialY, Camera camera) throws SlickException {
 		super(initialX, initialY, camera);
@@ -22,14 +24,30 @@ public class Engineer extends Unit {
 		super.setSelected(false);
 	}
 	
+	public void goToClosestCC(World world) {
+		 
+		Sprite targetComCentre = findClosestCC(world);
+		super.setTargetX(targetComCentre.getX());
+		super.setTargetY(targetComCentre.getY());
+		
+	}
+	
 	public boolean isCloseToMine(World world) {
+		
+
 		for (Sprite s: world.getSprites()) {
-			if (s instanceof Resource && 
+			if (s instanceof Resource && ((Resource)s).getAmount() > 0 &&
 					World.distance(this.getX(), this.getY(), s.getX(), s.getY()) < 32) {
-				resource = (Resource)s;
+				
+				if (currentAmount == 0) {
+					holdingResource = (Resource)s;
+				}
+				
+				returnResource = (Resource)s;
 				return true;
 			}
 		}
+		
 		return false;
 	}
 	
@@ -56,9 +74,15 @@ public class Engineer extends Unit {
 		}
 		return closest;
 	}
+	
+	public void stopMining() {
+		isMining = false;
+		currentMiningTime = 0;
+	}
 
 	@Override
 	public void update(World world) throws SlickException {
+		
 		Input input = world.getInput();
 		
 		super.setSelected(this.equals(world.getSelected()));
@@ -72,47 +96,50 @@ public class Engineer extends Unit {
 		if (this.equals(world.getSelected()) && input.isMousePressed(Input.MOUSE_RIGHT_BUTTON)) {
 			super.setTargetX(super.getCamera().screenXToGlobalX(input.getMouseX()));
 			super.setTargetY(super.getCamera().screenYToGlobalY(input.getMouseY()));
-			// turn into method for reset mining?
-			isMining = false;
-			currentMiningTime = 0;
+			this.stopMining();
 		}
 		
 		if (isMining) {
 			currentMiningTime = currentMiningTime + world.getDelta();
 			if (currentMiningTime > TOTAL_MINING_TIME) {
 				
-				if (resource.getAmount() < world.getEngineerCarryCap()) {
-					currentAmount = resource.getAmount();
+				if (holdingResource.getAmount() < world.getEngineerCarryCap()) {
+					currentAmount = holdingResource.getAmount();
 				} else {
 					currentAmount = world.getEngineerCarryCap();
 				}
 				
 				if (currentAmount > 0) {
-					Sprite targetComCentre = findClosestCC(world);
-					super.setTargetX(targetComCentre.getX());
-					super.setTargetY(targetComCentre.getY());
-					resource.setAmount(resource.getAmount() - currentAmount);
+					goToClosestCC(world);
+					holdingResource.setAmount(holdingResource.getAmount() - currentAmount);
+					holdingResource.setResourcesUndelivered(holdingResource.getResourcesUndelivered() + currentAmount);
 				}
-				isMining = false;
-				currentMiningTime = 0;
+				
+				this.stopMining();
 			}
 		} else if(super.getTargetX() == super.getX() &&
 				super.getTargetY() == super.getY() && 
 				isCloseToMine(world)){
-			isMining = true;
+			if (currentAmount == 0) {
+				isMining = true;
+			} else {
+				goToClosestCC(world);
+			}
 		}
 		
 		if (isCloseToCC(world) && currentAmount > 0) {
-			if (resource instanceof Unobtainium) {
+			if (holdingResource instanceof Unobtainium) {
 				world.setUnobtanium(world.getUnobtanium() + currentAmount);
 			} else {
 				world.setMetal(world.getMetal() + currentAmount);
 			}
 			
-			super.setTargetX(resource.getX());
-			super.setTargetY(resource.getY());
+			super.setTargetX(returnResource.getX());
+			super.setTargetY(returnResource.getY());
+			holdingResource.setResourcesUndelivered(holdingResource.getResourcesUndelivered() - currentAmount);
 			currentAmount = 0;
-			resource = null;
+			holdingResource = null;
+			returnResource = null;
 		}
 		
 		

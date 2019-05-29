@@ -14,15 +14,17 @@ public class Unobtainium extends Resource {
 
 	@Override
 	public void update(World world) {
-		if (super.getAmount() == 0) {
+		if (super.getAmount() == 0 && super.getResourcesUndelivered() == 0) {
 			world.killSprite(this);
 		}
 	}
 
 	@Override
 	public void render() {
-		super.getImage().drawCentered((int)super.getCamera().globalXToScreenX(super.getX()),
-				   (int)super.getCamera().globalYToScreenY(super.getY()));
+		if (super.getAmount() > 0) {
+			super.getImage().drawCentered((int)super.getCamera().globalXToScreenX(super.getX()),
+					(int)super.getCamera().globalYToScreenY(super.getY()));
+		}
 	}
 
 

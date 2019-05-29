@@ -8,9 +8,18 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.tiled.TiledMap;
 
+/** World class describes the state of the game and includes the sprites and camera which control
+ * various aspects of the game.
+ * The code makes use of elements of the Project 1 sample solution - isPositionFree(), distance() 
+ * and world-to-tile methods.
+ * 
+ * @author tomharris44
+ * 
+ */
 public class World {
 	private static final String MAP_PATH = "assets/main.tmx";
 	private static final String SOLID_PROPERTY = "solid";
+	private static final String OCCUPY_PROPERTY = "occupied";
 	private static final String INITIAL_OBJECTS_PATH = "assets/objects.csv";
 	
 	// mapping of csv file sprite strings to static variables
@@ -29,77 +38,144 @@ public class World {
 	private ArrayList<Sprite> newSprites = new ArrayList<Sprite>();
 	private ArrayList<Sprite> deadSprites = new ArrayList<Sprite>();
 	
-	// 
+	// map and camera objects
 	private TiledMap map;
 	private Camera camera = new Camera();
 	
+	// variables for latest Input object and delta time
 	private Input lastInput;
 	private int lastDelta;
 	
+	// sprite object for selected unit/building
 	private Sprite selected = null;
+	
+	// coordinates for latest selection attempt - both stay as -1 if no selection made or selection
+	// made at position where no unit/building is
 	private double selectX = -1;
 	private double selectY = -1;
 	
-	private int metal = 1000;
+	// metal and unobtainium count for player
+	private int metal = 0;
 	private int unobtanium = 0;
 	
+	// engineer carry capacity - increased by activation of pylons
 	private int engineerCarryCap = 2;
-
+	
+	
+	/** Get latest Input object
+	 * @return latest Input object for sprites and buildings to interact with
+	 */
 	public Input getInput() {
 		return lastInput;
 	}
+	
+	
+	/** Get latest delta time
+	 * @return latest delta object for update() and render() methods of game objects to interact with
+	 */
 	public int getDelta() {
 		return lastDelta;
 	}
 	
+	
+	/** Checks if the tile for the given coordinates is free 
+	 * @param x map x coordinate that position is to be checked for
+	 * @param y map y coordinate that position is to be checked for
+	 * @return boolean of whether map tile is free
+	 */
 	public boolean isPositionFree(double x, double y) {
 		int tileId = map.getTileId(worldXToTileX(x), worldYToTileY(y), 0);
 		return !Boolean.parseBoolean(map.getTileProperty(tileId, SOLID_PROPERTY, "false"));
 	}
 	
+	
+	/** Checks if the tile for given coordinates can be built on - checks for occupied property
+	 * @param x X-coordinate for point to be checked on map
+	 * @param y Y-coordinate for point to be checked on map
+	 * @return boolean for whether it is possible to build at this location
+	 */
+	public boolean canBuild(double x, double y) {
+		int tileId = map.getTileId(worldXToTileX(x), worldYToTileY(y), 0);
+		return !Boolean.parseBoolean(map.getTileProperty(tileId, OCCUPY_PROPERTY, "false"));
+	}
+	
+	
+	/** 
+	 * @return map width in pixels
+	 */
 	public double getMapWidth() {
 		return map.getWidth() * map.getTileWidth();
 	}
+
 	
+	/**
+	 * @return map height in pixels
+	 */
 	public double getMapHeight() {
 		return map.getHeight() * map.getTileHeight();
 	}
 	
-	public void readSprites() throws IOException {
-		BufferedReader init_objects_reader = new BufferedReader(new FileReader(INITIAL_OBJECTS_PATH));
+	
+	/** Reads in list of sprites from a csv stored at a given pathname 
+	 * @param objectsPath pathname of csv
+	 * @throws IOException thrown when list has been fully read
+	 */
+	public void readSprites(String objectsPath) throws IOException {
+		
+		// reader for csv file
+		BufferedReader init_objects_reader = new BufferedReader(new FileReader(objectsPath));
+		
+		// while loop that reads in whole csv file before breaking
 		while (true) {
 			try {
+				
+				// read in new line
 				String newLine = init_objects_reader.readLine();
+				
+				// split line on comma to separate type of sprite with coordinates and store in array
 				String[] newSpriteInfo = newLine.split(",");
-				if(newSpriteInfo[0].equals(COMMAND_CENTRE)) {
-					sprites.add(new CommandCentre(Integer.parseInt(newSpriteInfo[1]),
-							Integer.parseInt(newSpriteInfo[2]),
-							camera));
-				}
-				if(newSpriteInfo[0].equals(METAL_MINE)) {
-					sprites.add(new Metal(Integer.parseInt(newSpriteInfo[1]),
-							Integer.parseInt(newSpriteInfo[2]),
-							camera));
-				}
-				if(newSpriteInfo[0].equals(UNOBTAINIUM_MINE)) {
-					// change once other mine implemented
-					sprites.add(new Unobtainium(Integer.parseInt(newSpriteInfo[1]),
-							Integer.parseInt(newSpriteInfo[2]),
-							camera));
-				}
-				if(newSpriteInfo[0].equals(PYLON)) {
-					// change once other pylon implemented
-					sprites.add(new Pylon(Integer.parseInt(newSpriteInfo[1]),
-							Integer.parseInt(newSpriteInfo[2]),
-							camera));
-				}
-				if(newSpriteInfo[0].equals(ENGINEER)) {
-					// change once other engineer implemented
-					sprites.add(new Engineer(Integer.parseInt(newSpriteInfo[1]),
-							Integer.parseInt(newSpriteInfo[2]),
-							camera));
+				
+				// switch to add appropriate sprite type at specified location,
+				// only included sprite types within csv file here, but could add other types 
+				switch(newSpriteInfo[0]) {
+				
+					case(COMMAND_CENTRE): {
+						sprites.add(new CommandCentre(Integer.parseInt(newSpriteInfo[1]),
+								Integer.parseInt(newSpriteInfo[2]),
+								camera));
+						break;
+					}
+					
+					case(METAL_MINE): {
+						sprites.add(new Metal(Integer.parseInt(newSpriteInfo[1]),
+								Integer.parseInt(newSpriteInfo[2]),
+								camera));
+						break;
+					}
+					
+					case(UNOBTAINIUM_MINE): {
+						sprites.add(new Unobtainium(Integer.parseInt(newSpriteInfo[1]),
+								Integer.parseInt(newSpriteInfo[2]),
+								camera));
+						break;
+					}
+					
+					case(PYLON): {
+						sprites.add(new Pylon(Integer.parseInt(newSpriteInfo[1]),
+								Integer.parseInt(newSpriteInfo[2]),
+								camera));
+						break;
+					}
+					
+					case(ENGINEER): {
+						sprites.add(new Engineer(Integer.parseInt(newSpriteInfo[1]),
+								Integer.parseInt(newSpriteInfo[2]),
+								camera));
+						break;
+					}
 				}
 			} catch (Exception e) {
+				// close reader when read in all csv items
 				init_objects_reader.close();
 				break;
 			}
@@ -107,20 +183,35 @@ public class World {
 		
 	}
 	
+	/** Appends a newly generated sprite to the queue for creation in the world
+	 * @param sprite sprite to be generated
+	 */
 	public void generateSprite(Sprite sprite) {
 		newSprites.add(sprite);
 	}
 	
+	/** Appends sprite to queue for deletion in the world
+	 * @param sprite sprite to be deleted
+	 */
 	public void killSprite(Sprite sprite) {
 		deadSprites.add(sprite);
 	}
 	
+	/** Constructor for World class - creates map and intital sprites
+	 * @throws SlickException thrown if error related to slick update/render procedure made
+	 * @throws IOException thrown if error related to reading in new sprites
+	 */
 	public World() throws SlickException, IOException {
 		map = new TiledMap(MAP_PATH);
-		this.readSprites();
+		this.readSprites(INITIAL_OBJECTS_PATH);
 		Collections.sort(sprites);
 	}
 	
+	/** Updates the world state - runs the various update sequences of world (sprites and map)
+	 * @param input input object from Slick App
+	 * @param delta time passed since last update sequence in milliseconds
+	 * @throws SlickException thrown if error related to slick update/render procedure made
+	 */
 	public void update(Input input, int delta) throws SlickException {
 		lastInput = input;
 		lastDelta = delta;
@@ -134,6 +225,8 @@ public class World {
 		}
 		
 		camera.update(this);
+		
+		
 		for (Sprite s: sprites) {
 			s.update(this);
 		}
@@ -141,6 +234,7 @@ public class World {
 		if (!deadSprites.isEmpty()) {
 			for (Sprite s: deadSprites) {
 				sprites.remove(s);
+				System.out.println(s.toString());
 			}
 			deadSprites.clear();
 		}
@@ -162,6 +256,7 @@ public class World {
 			selected = null;
 			camera.setFreeRoam(true);
 		}
+		
 	}
 	
 	public void render(Graphics g) {

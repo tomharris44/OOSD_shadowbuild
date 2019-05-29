@@ -24,6 +24,9 @@ public class Builder extends Unit {
 
 	@Override
 	public void update(World world) throws SlickException {
+		
+		//TODO: may have to have look into sort algorithm for overlapping buildings
+		
 		Input input = world.getInput();
 		
 		super.setSelected(this.equals(world.getSelected()));
@@ -51,9 +54,6 @@ public class Builder extends Unit {
 			if (World.distance(getX(), getY(), getTargetX(), getTargetY()) <= (world.getDelta() * super.getMoveSpeed())) {
 				super.setX(super.getTargetX());
 				super.setY(super.getTargetY());
-				
-				
-				//super.resetTarget();
 			} else {
 				// Calculate the appropriate x and y distances
 				double theta = Math.atan2(getTargetY() - getY(), getTargetX() - getX());
@@ -68,9 +68,11 @@ public class Builder extends Unit {
 				}
 			}
 			
-			if (super.isSelected() && input.isKeyPressed(Input.KEY_1) && world.getMetal() >= FACTORY_COST) {
+			if (super.isSelected() && input.isKeyPressed(Input.KEY_1) && 
+					world.getMetal() >= FACTORY_COST && world.canBuild(getX(),getY())) {
 				isBuilding = true;
 				world.setMetal(world.getMetal() - FACTORY_COST);
+				super.resetTarget();
 			}
 		}
 	}

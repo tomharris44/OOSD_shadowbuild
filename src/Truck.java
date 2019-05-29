@@ -35,7 +35,7 @@ public class Truck extends Unit {
 		if (isBuilding) {
 			currentBuildTime = currentBuildTime + world.getDelta();
 			if (currentBuildTime > TOTAL_BUILD_TIME) {
-				world.generateSprite(new CommandCentre(this.getX(),this.getY(),this.getCamera()));
+				world.generateSprite(new CommandCentre(getX(),getY(),getCamera()));
 				world.killSprite(this);
 			}
 		} else {
@@ -66,7 +66,7 @@ public class Truck extends Unit {
 			}
 		}
 		
-		if (super.isSelected() && input.isKeyPressed(Input.KEY_1)) {
+		if (super.isSelected() && input.isKeyPressed(Input.KEY_1) && world.canBuild(getX(), getY())) {
 			isBuilding = true;
 		}
 
