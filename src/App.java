@@ -8,6 +8,8 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.Input;
 
+
+// App framework - The code makes use of elements of the Project 1 sample solution.
 public class App extends BasicGame {
     /** window width, in pixels */
     public static final int WINDOW_WIDTH = 1024;
