@@ -49,8 +49,6 @@ public class Builder extends Unit {
 	@Override
 	public void update(World world) throws SlickException {
 		
-		//TODO: may have to have look into sort algorithm for overlapping buildings
-		
 		// Assign latest Input object to local input variable
 		Input input = world.getInput();
 		
