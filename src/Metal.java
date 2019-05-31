@@ -8,7 +8,7 @@ import org.newdawn.slick.SlickException;
  */
 public class Metal extends Resource {
 	
-	private static final String METAL_FILE_PATH = "assets/resources/metal_mine.png";
+	private static final String METAL_PATH = "assets/resources/metal_mine.png";
 	private static final int INITIAL_AMOUNT = 500;
 
 	/** Constructor for Metal
@@ -20,7 +20,7 @@ public class Metal extends Resource {
 	public Metal(double initialX, double initialY, Camera camera) throws SlickException {
 		super(initialX, initialY, camera);
 		super.setAmount(INITIAL_AMOUNT);
-		super.setImage(new Image(METAL_FILE_PATH));
+		super.setImage(new Image(METAL_PATH));
 	}
 
 	@Override

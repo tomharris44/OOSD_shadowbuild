@@ -8,7 +8,7 @@ import org.newdawn.slick.SlickException;
  */
 public class Unobtainium extends Resource {
 
-	private static final String UNOBTAINIUM_FILE_PATH = "assets/resources/unobtainium_mine.png";
+	private static final String UNOBTAINIUM_PATH = "assets/resources/unobtainium_mine.png";
 	private static final int INITIAL_AMOUNT = 50;
 	
 	
@@ -21,7 +21,7 @@ public class Unobtainium extends Resource {
 	public Unobtainium(double initialX, double initialY, Camera camera) throws SlickException {
 		super(initialX, initialY, camera);
 		super.setAmount(INITIAL_AMOUNT);
-		super.setImage(new Image(UNOBTAINIUM_FILE_PATH));
+		super.setImage(new Image(UNOBTAINIUM_PATH));
 	}
 
 	@Override
