@@ -270,6 +270,8 @@ public class World {
 		Collections.reverse(sprites);
 		Collections.sort(sprites);
 		
+		System.out.println(sprites.toString());
+		
 		// Check if selection was made  
 		// -1 indicates either no selection was made or a selection has been processed
 		// ! -1 indicates selection was made at a place where no unit exists and selection 

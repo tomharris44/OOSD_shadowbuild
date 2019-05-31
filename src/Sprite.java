@@ -134,14 +134,18 @@ public abstract class Sprite implements Comparable<Sprite> {
 	// Implementation of the CompareTo() for the Comparable interface
 	public int compareTo(Sprite s) {
 		
-		// Compare two sprites with Unit>Building>Resource hierarchy
+		// Compare two sprites with Unit>CommandCentre>Factory>Pylon>Resource hierarchy
 		if (this.getClass().equals(s.getClass())) {
 			return 0;
 		} else if (this instanceof Unit) {
 			return 1;
 		} else if (this instanceof Building && s instanceof Resource) {
 			return 1;
-		} else {
+		} else if (this instanceof CommandCentre && (s instanceof Pylon || s instanceof Factory)) {
+			return 1;
+		} else if (this instanceof Factory && s instanceof Pylon) {
+			return 1;
+		}else {
 			return -1;
 		}
 	}
